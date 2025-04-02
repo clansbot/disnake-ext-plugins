@@ -14,8 +14,9 @@ from disnake.ext import commands
 from . import async_utils
 
 if t.TYPE_CHECKING:
-    from disnake.ext import tasks
     from typing_extensions import ParamSpec, Self
+
+    from disnake.ext import tasks
 
     P = ParamSpec("P")
 

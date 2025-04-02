@@ -28,17 +28,17 @@ py -3 -m pip install -U git+https://github.com/DisnakeCommunity/disnake-ext-plug
 It will be installed to your existing [disnake](https://github.com/DisnakeDev/disnake) installation as an extension. From there, it can be imported as:
 
 ```py
-import disnake_plugins
+from disnake.ext import plugins
 ```
 
 Example
 -------
 ```py
 import disnake
-import disnake_plugins
+from disnake.ext import commands, plugin
 
 
-plugin = disnake_plugins.Plugin()
+plugin = plugins.Plugin()
 
 
 @plugin.slash_command()
@@ -50,10 +50,11 @@ setup, teardown = plugin.create_extension_handlers()
 ```
 Further examples can be found in [the examples directory](https://github.com/Chromosomologist/disnake-ext-plugins/tree/master/examples).
 
-Why not disnake.ext.plugins?
-----------------------------
-Registering into the `disnake.ext` namespace brings with it a variety of issues, starting with being unable to properly make editable installs into `.../site-packages/disnake/ext/`. It also leads to inconsistencies with Sphinx autodoc & co., which are simply annoying to work around.
-This extension used to be part of the `disnake.ext` namespace, and there used to be a symlink script to get around the editable install limitation. However, we ultimately decided staying in the `disnake.ext` namespace for its "legacy" wasn't worth the headaches.
+To-Do
+-----
+- PyPI release,
+- Provide some clean entrypoint for global variables, perhaps custom `ContextVar`s?
+- Perhaps some mechanism to register submodules to a plugin, allowing to batch-reload related files.
 
 Contributing
 ------------

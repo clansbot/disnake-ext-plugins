@@ -1,13 +1,12 @@
 import disnake
-import disnake_plugins
-from disnake.ext import commands
+from disnake.ext import commands, plugins
 
 # Create a basic plugin...
 # Without providing any extra data, a plugin will be instantiated with only a
 # name. This name will default to the file in which the plugin was created.
 # In this case, a plugin named "basic" would be created.
 
-basic_plugin = disnake_plugins.Plugin()
+basic_plugin = plugins.Plugin()
 
 
 # Next, we register a command on the plugin.

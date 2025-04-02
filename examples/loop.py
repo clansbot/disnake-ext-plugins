@@ -1,5 +1,4 @@
-import disnake_plugins
-from disnake.ext import tasks
+from disnake.ext import plugins, tasks
 
 # Sometimes, we want to use loops in our plugins. This is easily done.
 # We can simply create a loop as per usual, then use
@@ -7,7 +6,7 @@ from disnake.ext import tasks
 # this signals the plugin to automatically start and stop the loop when
 # the plugin is loaded or unloaded.
 
-plugin = disnake_plugins.Plugin()
+plugin = plugins.Plugin()
 
 
 @plugin.register_loop()

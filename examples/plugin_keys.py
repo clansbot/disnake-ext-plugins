@@ -1,7 +1,6 @@
 import typing as t
 
-import disnake_plugins
-from disnake.ext import commands
+from disnake.ext import commands, plugins
 
 # `PluginKey`s provide a type-safe approach for interacting with
 # `Plugin.extras`, similar to aiohttp's `AppKey`s. This file is a
@@ -12,13 +11,13 @@ from disnake.ext import commands
 # Since we have two keys, "foo" and "bar", we define two `PluginKey`s
 # for them, with appropriate type arguments.
 
-foo_key = disnake_plugins.PluginKey[t.Literal["bar"]]("foo_key")
-bar_key = disnake_plugins.PluginKey[t.Literal["foo"]]("bar_key")
+foo_key = plugins.PluginKey[t.Literal["bar"]]("foo_key")
+bar_key = plugins.PluginKey[t.Literal["foo"]]("bar_key")
 
 # Be careful, as due to type system limitations the initial
 # `extras=...` cannot be type-validated.
 
-extras_plugin = disnake_plugins.Plugin(extras={"foo": "bar"})
+extras_plugin = plugins.Plugin(extras={"foo": "bar"})
 
 
 @extras_plugin.command()
