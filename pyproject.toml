@@ -1,20 +1,20 @@
-[tool.poetry]
+
+[project]
+authors = [{ name = "Chromosomologist", email = "chromosomologist@gmail.com" }]
+license = { text = "MIT" }
+requires-python = "<4.0,>=3.13"
+dependencies = ["disnake @ git+https://github.com/clansbot/disnake@master"]
 name = "disnake-ext-plugins"
 version = "0.3.0"
 description = "An extension for disnake providing a robust alternative to cogs."
-authors = ["Chromosomologist <chromosomologist@gmail.com>"]
-license = "MIT"
 readme = "README.md"
-packages = [
-    {include = "disnake/ext/plugins", from="src"}]
-repository = "https://github.com/Chromosomologist/disnake-ext-plugins"
 keywords = [
     "disnake",
     "disnake.ext",
     "discord",
     "cogs",
 ]
-classifiers=[
+classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
@@ -30,28 +30,39 @@ classifiers=[
     "Typing :: Typed",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-disnake = "^2.8"
+[project.urls]
+repository = "https://github.com/Chromosomologist/disnake-ext-plugins"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.4"
-taskipy = "^1.10.1"
-
-black="~22.8.0"
-pyright="~1.1.272"
-slotscheck="~0.15.0"
-ruff = "^0.6"
-
-[tool.poetry.scripts]
+[project.scripts]
 dev-symlink = "scripts.symlink:_main"
 
+[dependency-groups]
+dev = [
+    "pre-commit<4.0,>=3.4",
+    "taskipy<2.0.0,>=1.10.1",
+    "black~=22.8.0",
+    "pyright~=1.1.272",
+    "slotscheck~=0.15.0",
+    "ruff<1.0,>=0.6",
+]
+[tool.pdm.build]
+includes = ["src/disnake/ext/plugins"]
+
+# Prevent devs from installing this package in editable mode as it doesn't play nice with pyright
+# Usually adding flag only to install would be enough, i'm just being extra careful here
+[tool.pdm.options]
+install = ["--no-editable"]
+add = ["--no-editable"]
+remove = ["--no-editable"]
+sync = ["--no-editable"]
+update = ["--no-editable"]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.pyright]
-pythonVersion = "3.8"
+pythonVersion = "3.13"
 include = ["src/disnake/ext/plugins"]
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
@@ -62,7 +73,7 @@ reportImportCycles = false
 line-length = 100
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py313"
 line-length = 100
 
 exclude = [
@@ -71,8 +82,6 @@ exclude = [
 
 select = ["ALL"]
 ignore = [
-    # `self` and `cls` do not need annotations.
-    "ANN101", "ANN102",
     # Magic methods do not need documentation.
     "D105",
     # Class docstrings are at the class level.

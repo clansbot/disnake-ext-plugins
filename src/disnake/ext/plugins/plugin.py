@@ -6,12 +6,9 @@ import asyncio
 import dataclasses
 import logging
 import typing as t
-import warnings
 
 import disnake
 from disnake.ext import commands
-
-from . import async_utils
 
 if t.TYPE_CHECKING:
     from typing_extensions import ParamSpec, Self
@@ -43,7 +40,7 @@ BotT = t.TypeVar("BotT", bound=AnyBot)
 Coro = t.Coroutine[t.Any, t.Any, T]
 MaybeCoro = t.Union[Coro[T], T]
 EmptyAsync = t.Callable[[], Coro[None]]
-SetupFunc = t.Callable[[BotT], None]
+SetupFunc = t.Callable[[BotT], t.Awaitable[None]]
 
 AnyCommand = commands.Command[t.Any, t.Any, t.Any]
 AnyGroup = commands.Group[t.Any, t.Any, t.Any]
@@ -58,7 +55,7 @@ PermissionsOptional = t.Optional[t.Union[disnake.Permissions, int]]
 LoopT = t.TypeVar("LoopT", bound="tasks.Loop[t.Any]")
 
 PrefixCommandCheck = t.Callable[[commands.Context[t.Any]], MaybeCoro[bool]]
-AppCommandCheck = t.Callable[[disnake.CommandInteraction], MaybeCoro[bool]]
+AppCommandCheck = t.Callable[[disnake.CommandInteraction[t.Any]], MaybeCoro[bool]]
 
 PrefixCommandCheckT = t.TypeVar("PrefixCommandCheckT", bound=PrefixCommandCheck)
 AppCommandCheckT = t.TypeVar("AppCommandCheckT", bound=AppCommandCheck)
@@ -120,12 +117,6 @@ class PluginMetadata:
     ----------
     name: :class:`str`
         Plugin's name.
-    category: Optional[:class:`str`]
-        The category this plugin belongs to. Does not serve any actual purpose,
-        but may be useful in organising plugins.
-
-        .. deprecated:: 0.2.4
-            Use :attr:`.extras` instead.
     extras: Dict[:class:`str`, :class:`str`]
         A dict of extra metadata for a plugin.
 
@@ -154,32 +145,6 @@ class PluginMetadata:
     """Parameters to apply to each message command in this plugin."""
     user_command_attrs: AppCommandAttrs = dataclasses.field(default_factory=AppCommandAttrs)
     """Parameters to apply to each user command in this plugin."""
-
-    @property
-    def category(self) -> t.Optional[str]:
-        """The category this plugin belongs to.
-
-        This does not serve any actual purpose but may be useful in organising plugins.
-
-        .. deprecated:: 0.2.4
-            Use :attr:`.extras` instead.
-        """
-        warnings.warn(
-            "Accessing `PluginMetadata.category` is deprecated. "
-            "Use `PluginMetadata.extras` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.extras.get("category")
-
-    @category.setter
-    def category(self, value: t.Optional[str]) -> None:
-        warnings.warn(
-            "Setting `PluginMetadata.category` is deprecated. Use `PluginMetadata.extras` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.extras["category"] = value
 
 
 class ExtrasAware(t.Protocol):
@@ -262,12 +227,6 @@ class Plugin(t.Generic[BotT]):
     ----------
     name: Optional[:class:`str`]
         The name of the plugin. Defaults to the module the plugin is created in.
-    category: Optional[:class:`str`]
-        The category this plugin belongs to. Does not serve any actual purpose,
-        but may be useful in organising plugins.
-
-        .. deprecated:: 0.2.4
-            Use ``extras`` instead.
     command_attrs: Dict[:class:`str`, Any]
         A dict of parameters to apply to each prefix command in this plugin.
     message_command_attrs: Dict[:class:`str`, Any]
@@ -426,21 +385,6 @@ class Plugin(t.Generic[BotT]):
     def name(self) -> str:
         """The name of this plugin."""
         return self.metadata.name
-
-    @property
-    def category(self) -> t.Optional[str]:
-        """The category this plugin belongs to.
-
-        .. deprecated:: 0.2.4
-            Use :attr:`.extras` instead.
-        """
-        warnings.warn(
-            "Accessing `Plugin.category` is deprecated. Use `Plugin.extras` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        return self.extras.get("category")
 
     @property
     def extras(self) -> t.Dict[str, t.Any]:
@@ -1086,10 +1030,10 @@ class Plugin(t.Generic[BotT]):
         are called when the plugin is loaded or unloaded, respectively.
         """
 
-        def setup(bot: BotT) -> None:
-            async_utils.safe_task(self.load(bot))
+        async def setup(bot: BotT) -> None:
+            await self.load(bot)
 
-        def teardown(bot: BotT) -> None:
-            async_utils.safe_task(self.unload(bot))
+        async def teardown(bot: BotT) -> None:
+            await self.unload(bot)
 
         return setup, teardown
